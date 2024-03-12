@@ -12,7 +12,7 @@ app.use(express.json())
     we'll use zod for input validation
  */
 app.post("/todo", function(req,res){
-
+    const cratePayLoad = req.body; 
 });
 app.get("/todos", function(req,res){
 
