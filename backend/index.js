@@ -12,7 +12,8 @@ app.use(express.json())
     we'll use zod for input validation
  */
 app.post("/todo", function(req,res){
-    const cratePayLoad = req.body; 
+    const cratePayLoad = req.body;
+    const parsedPayLoad = ceateTodo.safe(createPayload); 
 });
 app.get("/todos", function(req,res){
 
