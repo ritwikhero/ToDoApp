@@ -1,6 +1,7 @@
 //basic express boiler plate code with APIs and middlewares
 const express = require('express');
-const {ceateTodo, updateTodo} = require("./types");
+const {createTodo, updateTodo} = require("./types");
+const { todo } = require('./db');
 const app = express();
 
 app.use(express.json())
@@ -12,9 +13,9 @@ app.use(express.json())
 
     we'll use zod for input validation
  */
-app.post("/todo", function(req,res){
-    const cratePayLoad = req.body;
-    const parsedPayLoad = ceateTodo.safeParse(createPayload);
+app.post("/todo", async function(req,res){
+    const createPayLoad = req.body;
+    const parsedPayLoad = createTodo.safeParse(createPayLoad);
     if(!parsedPayLoad.success){
         res.status(411).json({
             msg : "You sent wrong inputs",
@@ -23,11 +24,25 @@ app.post("/todo", function(req,res){
     }
     //put in mongoDB
 
-});
-app.get("/todos", function(req,res){
+    await todo.create({
+        title : createPayLoad.title,
+        description : createPayLoad.description,
+        completed : false,
+    });
+
+    res.json({
+        msg : "Todo created"
+    });
 
 });
-app.post("/completed", function(req,res){
+app.get("/todos", async function(req,res){
+    const todos = todo.find();
+    console.log(todos);
+    res.json({
+        todos,
+    })
+});
+app.post("/completed", async function(req,res){
     const updatePayLoad = req.body;
     const parsedPayLoad = updateTodo.safeParse(updatePayLoad);
     if(!parsedPayLoad){
@@ -37,9 +52,17 @@ app.post("/completed", function(req,res){
         return;
     }
     //update in mongo
+    await todo.update({
+        _id : req.body.id
+    },{
+        completed : true,
+    });
 
+    res.json({
+        msg : "Marked as completed"
+    })
 });
 
 
-const port = app.listen(3000);
-console.log(`port started on ${port}`);
+app.listen(3000);
+console.log(" server started ");
